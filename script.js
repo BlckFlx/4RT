@@ -1,111 +1,157 @@
-// Gerekli elementleri seçiyoruz.
-// HTML'deki doğru ID'yi kullandığımıza emin olalım: #theme-toggle
-const themeToggle = document.querySelector("#theme-toggle");
-const moonIcon = document.querySelector("#moon-icon");
-const sunIcon = document.querySelector("#sun-icon");
-const htmlElement = document.documentElement; // <html> elementini seçer
+document.addEventListener("DOMContentLoaded", () => {
+  // --- Local Storage Anahtarları ---
+  const TODOS_STORAGE_KEY = "4rt_todos_list";
+  const THEME_STORAGE_KEY = "4rt_theme_preference";
+  const USERNAME_STORAGE_KEY = "4rt_username";
 
-// Butonun var olup olmadığını kontrol edip click olayını ekliyoruz.
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    // <html> elementinde 'light-mode' sınıfı var mı diye kontrol edip,
-    // yoksa ekliyor, varsa kaldırıyor.
-    htmlElement.classList.toggle("light-mode");
+  // --- Element Seçimleri ---
+  const themeToggle = document.querySelector("#theme-toggle");
+  const moonIcon = document.querySelector("#moon-icon");
+  const sunIcon = document.querySelector("#sun-icon");
+  const htmlElement = document.documentElement;
+  const nameDOM = document.querySelector("#name");
+  const dateDOM = document.querySelector("#current-time");
+  const taskInput = document.querySelector("#yapilacak");
+  const addButton = document.querySelector("#eklemeButonu");
+  const taskList = document.querySelector("#yapilacaklar");
 
-    // 'light-mode' sınıfının varlığına göre ikonları gösterip/gizliyoruz.
+  // =========================================
+  // TEMA İŞLEVSELLİĞİ (LOCAL STORAGE İLE)
+  // =========================================
+  const saveTheme = () => {
     const isLightMode = htmlElement.classList.contains("light-mode");
+    localStorage.setItem(THEME_STORAGE_KEY, isLightMode ? "light" : "dark");
+  };
 
-    // Açık mod aktifse güneş ikonunu, değilse ay ikonunu göster.
+  const loadTheme = () => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    // Varsayılan tema koyu olduğu için sadece açık modu kontrol ediyoruz.
+    if (savedTheme === "light") {
+      htmlElement.classList.add("light-mode");
+    }
+    // Sayfa yüklendiğinde doğru ikonun görünmesini sağla
+    const isLightMode = htmlElement.classList.contains("light-mode");
     sunIcon.style.display = isLightMode ? "block" : "none";
     moonIcon.style.display = isLightMode ? "none" : "block";
+  };
 
-    console.log(
-      "Tema değiştirildi. Mevcut mod:",
-      isLightMode ? "Açık" : "Koyu"
-    );
+  themeToggle.addEventListener("click", () => {
+    htmlElement.classList.toggle("light-mode");
+    const isLightMode = htmlElement.classList.contains("light-mode");
+    sunIcon.style.display = isLightMode ? "block" : "none";
+    moonIcon.style.display = isLightMode ? "none" : "block";
+    saveTheme(); // Her değişiklikte temayı kaydet
   });
-}
 
-// Kullanıcıdan ismini alıp ekrana yazdıralım.
-const nameDOM = document.querySelector("#name");
+  // =========================================
+  // KULLANICI ADI İŞLEVSELLİĞİ (LOCAL STORAGE İLE)
+  // =========================================
+  const loadUser = () => {
+    let username = localStorage.getItem(USERNAME_STORAGE_KEY);
+    if (!username || username.trim() === "") {
+      username = prompt("Merhaba! Lütfen adınızı girin:");
+      if (username && username.trim() !== "") {
+        localStorage.setItem(USERNAME_STORAGE_KEY, username);
+      } else {
+        username = "Ziyaretçi"; // Kullanıcı isim girmezse varsayılan değer
+      }
+    }
+    nameDOM.textContent = username;
+  };
 
-// prompt() fonksiyonunu parantezlerle çağırarak kullanıcıya bir soru soruyoruz.
-const username = prompt("Merhaba! Lütfen adınızı girin:");
+  // =========================================
+  // SAAT İŞLEVSELLİĞİ
+  // =========================================
+  const updateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const date = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    dateDOM.textContent = `${date}.${month}.${year}\n${hours}:${minutes}:${seconds}`;
+  };
 
-// Kullanıcı bir isim girdiyse (null değilse VE boşluklardan arındırılmış hali boş değilse)
-if (username && username.trim() !== "") {
-  nameDOM.textContent = username;
-} else {
-  // Eğer kullanıcı isim girmezse veya iptal ederse, varsayılan "Ziyaretçi" metnini kullan.
-  nameDOM.textContent = "Ziyaretçi";
-}
+  // =========================================
+  // YAPILACAKLAR LİSTESİ (LOCAL STORAGE İLE)
+  // =========================================
+  const saveTodos = () => {
+    const todos = [];
+    taskList.querySelectorAll("li").forEach((listItem) => {
+      const taskText = listItem.querySelector(".task-text").textContent;
+      const isCompleted = listItem.classList.contains("completed");
+      todos.push({ text: taskText, completed: isCompleted });
+    });
+    localStorage.setItem(TODOS_STORAGE_KEY, JSON.stringify(todos));
+  };
 
-const dateDOM = document.querySelector("#current-time");
+  const createTodoElement = (task) => {
+    const listItem = document.createElement("li");
+    if (task.completed) {
+      listItem.classList.add("completed");
+    }
+    // Mevcut HTML yapınızı ve sınıflarınızı koruyoruz
+    listItem.innerHTML = `<span class="task-text">${task.text}</span><span class="delete-btn">×</span>`;
+    taskList.appendChild(listItem);
+  };
 
-function updateTime() {
-  const now = new Date(); // Mevcut tarih ve saat objesi
-  const year = now.getFullYear(); // Yıl bilgisini al (4 haneli)
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // ay bilgisini al ve iki haneli yap
-  const date = String(now.getDate()).padStart(2, "0"); // gün bilgisini al ve iki haneli yap
-  const hours = String(now.getHours()).padStart(2, "0"); // saat bilgisini al ve iki haneli yap
-  const minutes = String(now.getMinutes()).padStart(2, "0"); // dakika bilgisini al ve iki haneli yap
-  const seconds = String(now.getSeconds()).padStart(2, "0"); // saniye bilgisini al ve iki haneli yap
-  dateDOM.textContent = `${date}.${month}.${year}\n${hours}:${minutes}:${seconds}`;
-}
+  const loadTodos = () => {
+    const storedTodos = localStorage.getItem(TODOS_STORAGE_KEY);
+    if (storedTodos) {
+      const todos = JSON.parse(storedTodos);
+      todos.forEach((task) => createTodoElement(task));
+    }
+  };
 
-updateTime(); // sayfa yüklendiğinde saati hemen göster
-setInterval(updateTime, 1000); // her 1 saniyede bir saati güncelle
+  const addTask = () => {
+    const taskText = taskInput.value.trim();
+    if (taskText === "") return;
 
-/*
- * =========================================
- * Yapılacaklar Listesi İşlevselliği
- * =========================================
- */
+    const newTask = { text: taskText, completed: false };
+    createTodoElement(newTask);
+    saveTodos(); // Listeye ekleme yapınca kaydet
 
-const taskInput = document.querySelector("#yapilacak");
-const addButton = document.querySelector("#eklemeButonu");
-const taskList = document.querySelector("#yapilacaklar");
+    taskInput.value = "";
+    taskInput.focus();
+  };
 
-function addTask() {
-  const taskText = taskInput.value.trim(); // Yazılan metni al ve boşlukları temizle
+  // Olay dinleyicileri
+  addButton.addEventListener("click", addTask);
+  taskInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") addTask();
+  });
 
-  if (taskText === "") {
-    alert("Lütfen bir görev girin.");
-    return; // Fonksiyonu durdur
-  }
+  taskList.addEventListener("click", (event) => {
+    const clickedElement = event.target;
+    const listItem = clickedElement.closest("li");
 
-  const listItem = document.createElement("li"); // Yeni bir <li> elementi oluştur
-  // Görev metnini ve silme butonunu içeren HTML'i ayarla
-  listItem.innerHTML = `<span class="task-text">${taskText}</span><span class="delete-btn">×</span>`;
-  taskList.appendChild(listItem); // <li>'yi <ul> listesine ekle
+    if (!listItem) return;
 
-  taskInput.value = ""; // Ekleme sonrası input alanını temizle
-  taskInput.focus(); // İmleci tekrar input alanına odakla
-}
+    // Silme butonuna tıklandıysa
+    if (clickedElement.classList.contains("delete-btn")) {
+      // Animasyonu koruyoruz
+      listItem.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      listItem.style.opacity = "0";
+      listItem.style.transform = "translateX(20px)";
+      setTimeout(() => {
+        listItem.remove();
+        saveTodos(); // Animasyon bittikten sonra kaydet
+      }, 300);
+    }
+    // Liste elemanının kendisine tıklandıysa (tamamlama)
+    else {
+      listItem.classList.toggle("completed");
+      saveTodos(); // Durumu değiştirince kaydet
+    }
+  });
 
-// "Ekle" butonuna tıklandığında veya Enter'a basıldığında görev ekle
-addButton.addEventListener("click", addTask);
-taskInput.addEventListener("keypress", function (event) {
-  if (event.key === "Enter") {
-    addTask();
-  }
-});
-
-// Görevleri tamamlama ve silme için olay dinleyicisi (event delegation)
-taskList.addEventListener("click", function (event) {
-  const clickedElement = event.target;
-
-  // Silme butonuna tıklandıysa
-  if (clickedElement.classList.contains("delete-btn")) {
-    const listItem = clickedElement.parentElement;
-    // Animasyonlu silme
-    listItem.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-    listItem.style.opacity = "0";
-    listItem.style.transform = "translateX(20px)";
-    setTimeout(() => listItem.remove(), 300);
-  }
-  // Liste elemanının kendisine veya içindeki metne tıklandıysa
-  else if (clickedElement.closest("li")) {
-    clickedElement.closest("li").classList.toggle("completed");
-  }
+  // =========================================
+  // SAYFA YÜKLENDİĞİNDE ÇALIŞACAK FONKSİYONLAR
+  // =========================================
+  loadTheme();
+  loadUser();
+  updateTime();
+  setInterval(updateTime, 1000);
+  loadTodos();
 });
