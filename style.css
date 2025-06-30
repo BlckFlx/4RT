@@ -1,0 +1,211 @@
+/*
+ * =========================================
+ * Genel ve Tema Stilleri
+ * =========================================
+ */
+
+/* Varsayılan (Koyu) Tema */
+html,
+body {
+  background-image: url("images/4rt-background(dark).jpeg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Arka planın kaymasını engeller */
+  transition: background-image 0.3s ease-in-out, color 0.3s ease-in-out;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  margin: 0;
+}
+
+/* Açık Tema Stilleri */
+html.light-mode,
+html.light-mode body {
+  background-image: url("images/4rt-background(light).jpeg");
+  color: #1a1a1a;
+}
+
+/*
+ * =========================================
+ * Navigasyon Çubuğu Stilleri
+ * =========================================
+ */
+
+#NavBar {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px); /* Modern bulanıklık efekti */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 0 30px; /* Kenar boşlukları */
+  box-sizing: border-box;
+  height: 65px;
+  display: flex;
+  align-items: center;
+}
+
+#Navbar_Elements {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 30px; /* Sağdaki elemanlar arasına boşluk ekler */
+}
+
+/* ANAHTAR: "4RT" logosunu sola, geri kalanı sağa iter */
+#Navbar_Elements li:first-child {
+  margin-right: auto;
+}
+
+#Navbar_Elements a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.2s ease-in-out;
+}
+
+#Navbar_Elements a:hover {
+  color: #cccccc;
+}
+
+/* Tema Değiştirme Butonu */
+#theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Açık Tema için Navigasyon Stilleri */
+html.light-mode #NavBar {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+html.light-mode #Navbar_Elements a,
+html.light-mode #theme-toggle {
+  color: #1a1a1a;
+}
+html.light-mode #Navbar_Elements a:hover {
+  color: #555555;
+}
+
+/*
+ * =========================================
+ * Ana İçerik Stilleri
+ * =========================================
+ */
+
+h1,
+h2,
+h3,
+h4,
+p {
+  text-align: center;
+}
+
+.container {
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  padding: 2rem 3rem;
+  border-radius: 15px;
+  max-width: 800px;
+  margin: 100px auto 0 auto; /* Üstte boşluk bırakır ve yatayda ortalar */
+  box-sizing: border-box;
+}
+
+html.light-mode .container {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+#current-time {
+  white-space: pre-line; /* \n karakterlerinin alt satıra geçmesini sağlar */
+}
+
+/*
+ * =========================================
+ * Yapılacaklar Listesi Stilleri
+ * =========================================
+ */
+
+.container h2 {
+  margin-top: 0;
+}
+
+#yapilacak {
+  width: 70%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  font-size: 1rem;
+}
+
+#eklemeButonu {
+  padding: 11px 15px;
+  border-radius: 5px;
+  border: none;
+  background-color: #4caf50; /* Yeşil */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+}
+
+#eklemeButonu:hover {
+  background-color: #45a049;
+}
+
+#yapilacaklar {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  margin-top: 20px;
+}
+
+#yapilacaklar li {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  display: flex; /* Silme butonu için hizalama */
+  justify-content: space-between; /* Metni sola, butonu sağa yasla */
+  align-items: center;
+  word-break: break-word; /* Uzun görevlerin taşmasını engelle */
+}
+
+#yapilacaklar li:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Tamamlanmış görevler için stil */
+#yapilacaklar li.completed {
+  color: #aaa;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Sadece görev metninin üzerini çiz */
+#yapilacaklar li.completed .task-text {
+  text-decoration: line-through;
+}
+
+/* Silme butonu için stil */
+.delete-btn {
+  color: #ff7b7b;
+  font-weight: bold;
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-left: 15px;
+  transition: color 0.2s ease-in-out;
+}
+
+.delete-btn:hover {
+  color: #ff0000;
+}
